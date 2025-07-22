@@ -8,7 +8,7 @@ export default function Header() {
           TaskNest
         </Link>
         <nav className="space-x-6">
-          <Link href="/login" className="text-gray-700 hover:text-blue-600">Login</Link>
+          <Link href="/login" className="text-gray-700 hover:text-blue-600">Loginnnn</Link>
           <Link href="/register" className="text-gray-700 hover:text-blue-600">Registerrrrrr</Link>
         </nav>
       </div>
