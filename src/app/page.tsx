@@ -1,4 +1,5 @@
-// app/page.tsx
+import { FcGoogle } from "react-icons/fc";
+
 export default function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 px-4">
@@ -9,20 +10,19 @@ export default function Home() {
         <p className="text-lg text-gray-600">
           Organize your work and boost your productivity with ease.
         </p>
-        <div className="flex justify-center gap-4">
-          <a
-            href="/login"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md text-sm font-medium shadow-md transition-all duration-200"
-          >
-            Login
-          </a>
-          <a
-            href="/signup"
-            className="border border-indigo-600 text-indigo-600 hover:bg-indigo-100 px-6 py-2 rounded-md text-sm font-medium shadow-sm transition-all duration-200"
-          >
-            Sign Up
-          </a>
-        </div>
+        <form action="/api/auth/signin" method="POST">
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="flex items-center gap-3 bg-white border border-gray-300 px-6 py-3 rounded-md "
+            >
+              <FcGoogle size={24} />
+              <span className="text-gray-800 font-medium text-sm">
+                Continue with Google
+              </span>
+            </button>
+          </div>
+        </form>
       </section>
     </main>
   );
