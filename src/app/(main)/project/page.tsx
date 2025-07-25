@@ -17,10 +17,10 @@ export default function ProjectListPage() {
   };
 
   return (
-    <div className=" mx-auto py-10 px-4">
+    <div className=" mx-auto py-10 px-4 ">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">Your Projects</h2>
-        <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+        <h2 className="text-3xl font-bold text-black dark:text-white">Your Projects</h2>
+        <button className="bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition">
           + Create
         </button>
       </div>
@@ -30,15 +30,15 @@ export default function ProjectListPage() {
           <div
             key={project.id}
             onClick={() => handleOpenProject(project.id)}
-            className="cursor-pointer bg-white border border-gray-200 rounded-xl shadow-lg transition-all p-6 "
+            className="cursor-pointer bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg transition-all p-6 "
           >
             <div className="flex items-center gap-4 mb-2">
               <FolderIcon className="w-6 h-6 text-blue-500 group-hover:scale-110 transition" />
-              <h3 className="text-xl font-semibold text-gray-800">
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
                 {project.name}
               </h3>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Click to open project board
             </p>
           </div>
