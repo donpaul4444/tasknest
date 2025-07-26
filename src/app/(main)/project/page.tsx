@@ -1,6 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { FolderIcon } from "@heroicons/react/24/outline";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 const mockProjects = [
   { id: "1", name: "Portfolio Website" },
@@ -10,8 +12,16 @@ const mockProjects = [
 ];
 
 export default function ProjectListPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+   if (status === "loading") {
+    return <p>Loading...</p>;
+  }
   const handleOpenProject = (id: string) => {
     router.push(`/project/${id}`);
   };

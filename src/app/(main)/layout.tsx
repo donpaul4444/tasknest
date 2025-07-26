@@ -11,7 +11,7 @@ export default function MainLayout({
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 w-full  sm:px-3 lg:px-10  mx-auto  shadow-lg">
+      <main className="flex-1 w-full  sm:px-3 lg:px-10  mx-auto  shadow-lg pt-10">
         {children}
       </main>
       <Footer />
