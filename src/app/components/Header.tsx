@@ -103,7 +103,7 @@ export default function Header() {
                  Home
               </Link>
               <button
-                className=" bg-white dark:bg-black"
+                className=" bg-white dark:bg-gray-300"
                 onClick={() => {
                   setShowModal(true);
                   setMenuOpen(false);
