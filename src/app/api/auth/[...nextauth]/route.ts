@@ -2,6 +2,8 @@
 
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { connectToDB } from "@/lib/mongoose";
+import User from "@/models/User";
 
 const handler = NextAuth({
   providers: [
@@ -10,8 +12,26 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-    session: {
-    strategy: 'jwt',
+  callbacks: {
+    async signIn({ user }) {
+      try {
+        await connectToDB();
+        const userExists = await User.findOne({ email: user.email });
+
+        if (!userExists) {
+          await User.create({
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          });
+        }
+
+        return true;
+      } catch (err) {
+        console.error("Sign-in error:", err);
+        return false;
+      }
+    },
   },
 });
 
