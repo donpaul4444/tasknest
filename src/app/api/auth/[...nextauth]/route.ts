@@ -6,7 +6,6 @@ import { connectToDB } from "@/lib/mongoose";
 import User from "@/models/User";
 
 const handler = NextAuth({
-  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -34,14 +33,7 @@ const handler = NextAuth({
       }
     },
   },
-  callbacks: {
-    async session({ session, token }) {
-      if (session?.user) {
-        session.user.id = token.sub;
-      }
-      return session;
-    },
-  },
+
 });
 
 export { handler as GET, handler as POST };
