@@ -106,10 +106,25 @@ export default function ProjectListPage() {
               </button>
               <button
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                onClick={() => {
+                onClick={async() => {
                   if (projectName.trim() === "") {
                     setError("Project name cannot be empty");
                     return;
+                  }
+
+                  try {
+                    const res= await fetch("/api/project",{
+                      method:"POST",
+                      headers:{
+                        "Content-Type":"application/json",
+                      },
+                      body:JSON.stringify({
+                        name:projectName,
+                        email:session?.user?.email
+                      })
+                    })
+                  } catch (error) {
+                    
                   }
                 }}
               >

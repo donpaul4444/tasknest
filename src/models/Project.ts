@@ -6,9 +6,7 @@ const ProjectSchema = new Schema(
             type:String,
             required:[true,"Project title is required"],
         },
-        description:{
-            type:String,
-        },
+
         createdBy:{
             type:String,
             required:true,
