@@ -2,9 +2,9 @@ import {Schema,model,models} from 'mongoose'
 
 const ProjectSchema = new Schema(
     {
-        title:{
+        name:{
             type:String,
-            required:[true,"Project title is required"],
+            required:[true,"Project name is required"],
         },
 
         createdBy:{
@@ -12,7 +12,6 @@ const ProjectSchema = new Schema(
             required:true,
         },
     },
-    {timestamps:true}
 )
 
 const Project =models.Project || model("Project",ProjectSchema)

@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation";
 import { FolderIcon } from "@heroicons/react/24/outline";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const mockProjects = [
   { id: "1", name: "Portfolio Website" },
@@ -86,7 +88,7 @@ export default function ProjectListPage() {
                   error ? "border-red-500" : ""
                 }`}
               ></input>
-              {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+              {error && <p className="text-red-500 text-sm mt-1">{error}</p> }
             </div>
 
             <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">
@@ -113,17 +115,18 @@ export default function ProjectListPage() {
                   }
 
                   try {
-                    const res= await fetch("/api/project",{
-                      method:"POST",
-                      headers:{
-                        "Content-Type":"application/json",
-                      },
-                      body:JSON.stringify({
-                        name:projectName,
-                        email:session?.user?.email
-                      })
-                    })
+                 const res= await axios.post("/api/project",{
+                  name: projectName,
+                  email:session?.user?.email,
+                 })
+
+                 if(res.status === 201){
+                  setShowModal(false)
+                  setProjectName("")
+                 }
                   } catch (error) {
+                    setError("Failed to create project");
+                    console.log(error);
                     
                   }
                 }}
