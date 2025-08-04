@@ -1,18 +1,21 @@
-import {Schema,model,models} from 'mongoose'
+import { Schema, model, models } from "mongoose";
 
 const ProjectSchema = new Schema(
-    {
-        name:{
-            type:String,
-            required:[true,"Project name is required"],
-        },
-
-        createdBy:{
-            type:String,
-            required:true,
-        },
+  {
+    name: {
+      type: String,
+      required: [true, "Project name is required"],
     },
-)
 
-const Project =models.Project || model("Project",ProjectSchema)
-export default Project
+    createdBy: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const Project = models.Project || model("Project", ProjectSchema);
+export default Project;
