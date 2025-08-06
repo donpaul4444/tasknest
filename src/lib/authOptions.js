@@ -1,15 +1,13 @@
-// app/api/auth/[...nextauth]/route.ts
-
-import NextAuth from "next-auth";
+// lib/authOptions.ts
 import GoogleProvider from "next-auth/providers/google";
 import { connectToDB } from "@/lib/mongoose";
 import User from "@/models/User";
 
-const handler = NextAuth({
+export const authOptions= {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
   callbacks: {
@@ -33,7 +31,4 @@ const handler = NextAuth({
       }
     },
   },
-
-});
-
-export { handler as GET, handler as POST };
+};

@@ -1,34 +1,61 @@
-'use client'
+"use client";
 
-export default function ProjectBoardPage(){
-return (
-  <div className="p-6 lg:p-10">
-    <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Project Board</h1>
-    <p className="text-gray-600 dark:text-gray-300 text-lg mb-6">Portfolio Website</p>
+import InviteDrawer from "@/app/components/InviteDrawer";
+import { useState } from "react";
 
-   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {["To Do", "In Progress", "Review", "Done"].map((column) => (
-        <div
-          key={column}
-          className="bg-gray-100 dark:bg-gray-800  rounded-2xl shadow-lg p-5 border border-gray-200"
-        >
-          <h3 className="text-xl font-semibold text-gray-800 mb-3 dark:text-white">{column}</h3>
-          <div className="space-y-3">
-            <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100">
-              Sample Task
-            </div>
-            <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100">
-              Another Task
-            </div>
-          </div>
-          <div className="flex justify-end">
+export default function ProjectBoardPage() {
 
-          <button className="bg-black text-white dark:bg-white dark:text-black p-1 rounded-lg mt-5">+ Create</button>
-          </div>
+  const [isOpen,setIsOpen]= useState(false)
+  return (
+    <div className="p-4 sm:p-6 lg:p-10">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+            Project Board
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">
+            Portfolio Website
+          </p>
         </div>
-      ))} 
-    </div>
-  </div>
-);
+        <div className="flex gap-5 justify-end">
+          <button className="bg-red-700 text-white dark:bg-white dark:text-black px-2 rounded-lg hover:opacity-90 transition">
+            + Create
+          </button>
+         <div className="relative">
 
+          <button className="bg-blue-600 text-white px-2 dark:bg-white py-1 dark:text-black rounded-lg  hover:opacity-90 transition " onClick={()=>setIsOpen(true)}>
+            TeamMates
+          </button>
+          {isOpen && <InviteDrawer/>}
+         </div>
+        </div>
+      </div>
+
+      {/* Board */}
+      <div className="overflow-x-auto">
+        <div className="flex flex-col lg:flex-row  gap-4 lg:min-w-full">
+          {["To Do", "In Progress", "Review", "Done"].map((column) => (
+            <div
+              key={column}
+              className="flex-1  h-[400px] lg:mt-0 mt-5 w-full  bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg p-4 border border-gray-200 dark:border-gray-700 flex flex-col lg:max-h-[70vh] lg:h-screen "
+            >
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
+                {column}
+              </h3>
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100">
+                  Sample Task
+                </div>
+                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100">
+                  Another Task
+                </div>
+                {/* Add more sample tasks if needed */}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }

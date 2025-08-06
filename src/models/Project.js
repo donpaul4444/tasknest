@@ -8,14 +8,22 @@ const ProjectSchema = new Schema(
     },
 
     createdBy: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref:"User",
       required: true,
     },
+    members:[
+      {
+        type:Schema.Types.ObjectId,
+        ref:"User",
+        required:true
+      }
+    ]
   },
   {
     timestamps: true,
   }
 );
 
-const Project = models.Project || model("Project", ProjectSchema);
-export default Project;
+export default models.Project || model("Project", ProjectSchema);
+
