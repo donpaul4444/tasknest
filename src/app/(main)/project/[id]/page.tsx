@@ -1,11 +1,13 @@
 "use client";
 
-import InviteDrawer from "@/app/components/InviteDrawer";
+import AddTeamMate from "@/app/components/AddTeamMate";
+import TeamMemebrs from "@/app/components/TeamMembers";
+import { UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 
 export default function ProjectBoardPage() {
-
-  const [isOpen,setIsOpen]= useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenAdd, setIsOpenAdd] = useState(false);
   return (
     <div className="p-4 sm:p-6 lg:p-10">
       {/* Header */}
@@ -22,13 +24,31 @@ export default function ProjectBoardPage() {
           <button className="bg-red-700 text-white dark:bg-white dark:text-black px-2 rounded-lg hover:opacity-90 transition">
             + Create
           </button>
-         <div className="relative">
+          <div className="flex items-center gap-3">
+            {/* View Teammates Button */}
+            <div className="relative">
+              <button
+                className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition"
+                onClick={() => setIsOpen((prev) => !prev)}
+              >
+                <Users size={18} />
+                <span className="hidden sm:inline">Team Members</span>
+              </button>
+              {isOpen && <TeamMemebrs />}
+            </div>
 
-          <button className="bg-blue-600 text-white px-2 dark:bg-white py-1 dark:text-black rounded-lg  hover:opacity-90 transition " onClick={()=>setIsOpen(true)}>
-            TeamMates
-          </button>
-          {isOpen && <InviteDrawer/>}
-         </div>
+            {/* Add Teammate Button */}
+            <div className="relative">
+              <button
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition"
+                onClick={() => setIsOpenAdd((prev) => !prev)}
+              >
+                <UserPlus size={18} />
+                <span className="hidden sm:inline">Add Teammate</span>
+              </button>
+              {isOpenAdd && <AddTeamMate />}
+            </div>
+          </div>
         </div>
       </div>
 

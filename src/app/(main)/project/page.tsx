@@ -6,6 +6,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import { useProjectStore } from "@/store/projectStore";
 
 type Project = {
   _id: string;
@@ -52,6 +53,7 @@ export default function ProjectListPage() {
     return <p>Loading...</p>;
   }
   const handleOpenProject = (id: string) => {
+ useProjectStore.getState().setProjectId(id)
     router.push(`/project/${id}`);
   };
 

@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/lib/mongoose.js", "src/app/api/auth/[...nextauth]/route.js", "src/app/api/project/route.js", "src/app/api/users/route.js", "src/models/User.js", "src/models/Project.js", "src/models/Column.js"],
+  "include": ["next-env.d.ts","**/*.ts", "**/*.tsx",  ".next/types/**/*.ts", "src/lib/mongoose.ts", "src/app/api/auth/[...nextauth]/route.ts", "src/app/api/project/route.ts", "src/app/api/users/route.js", "src/models/User.js", "src/models/Project.js", "src/models/Column.js"],
   "exclude": ["node_modules"]
 }

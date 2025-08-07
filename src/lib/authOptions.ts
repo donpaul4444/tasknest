@@ -6,12 +6,12 @@ import User from "@/models/User";
 export const authOptions= {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user }: { user: { name?: string | null; email?: string | null; image?: string | null } }) {
       try {
         await connectToDB();
         const userExists = await User.findOne({ email: user.email });

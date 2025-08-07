@@ -1,11 +1,12 @@
+
 import { connectToDB } from "@/lib/mongoose";
 import Project from "@/models/Project";
 import User from "@/models/User";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   try {
-    await connectToDB();
+    await connectToDB()
     const body = await req.json();
     const { name, email } = body;
 
@@ -25,7 +26,7 @@ export async function POST(req) {
   }
 }
 
-export async function GET(req) {
+export async function GET(req: NextRequest) {
   try {
     await connectToDB();
     const email = req.nextUrl.searchParams.get("email");
@@ -47,7 +48,7 @@ export async function GET(req) {
   }
 }
 
-export async function DELETE(req) {
+export async function DELETE(req: NextRequest) {
   try {
     await connectToDB();
     const email = req.nextUrl.searchParams.get("email");
