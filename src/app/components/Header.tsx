@@ -8,6 +8,17 @@ import { signOut, useSession } from "next-auth/react";
 import ConfirmModal from "./ConfirmModal";
 import { Bell, ChevronDown, User } from "lucide-react";
 import Image from "next/image";
+import axios from "axios";
+import NotificationItem from "./NotificationItem";
+
+// Define the NotificationType interface according to your notification object structure
+interface NotificationType {
+  _id: string;
+  // Add other fields as needed, for example:
+  // title: string;
+  // message: string;
+  // read: boolean;
+}
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -15,11 +26,20 @@ export default function Header() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [notifOpen, setNotifOpen] = useState<boolean>(false);
+  const [notifications, setNotifications] = useState([]);
   const { data: session, status } = useSession();
 
   useEffect(() => {
     setChecked(theme === "dark");
   }, [theme]);
+
+  useEffect(() => {
+    const getNotification = async () => {
+      const res = await axios.get("/api/notification");
+      setNotifications(res.data.notifications);
+    };
+    getNotification();
+  }, []);
 
   const handleChange = (nextChecked: boolean) => {
     setChecked(nextChecked);
@@ -70,22 +90,9 @@ export default function Header() {
             >
               <Bell className="w-5 h-5" />
             </button>
-            {notifOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 shadow-lg border border-gray-200 dark:border-gray-700 z-50 rounded-md">
-                <div className="p-4 space-y-2">
-                  <div className="text-sm font-semibold mb-2">Notifications</div>
-                  <div className="text-sm text-gray-700 dark:text-gray-300">
-                    📌 You have 2 pending invites.
-                  </div>
-                  <div className="text-sm text-gray-700 dark:text-gray-300">
-                    ✅ Project "Design UI" was completed.
-                  </div>
-                  <button className="mt-2 text-sm text-blue-600 hover:underline">
-                    Mark all as read
-                  </button>
-                </div>
-              </div>
-            )}
+            {notifOpen && notifications.map((notification: NotificationType) => (
+              <NotificationItem key={notification._id} notification={notification} />
+            ))}
           </div>
 
           {/* Profile Dropdown */}
@@ -123,7 +130,7 @@ export default function Header() {
                     href="/project"
                     className="block px-4 py-2 rounded-md text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
-                     Home
+                    Home
                   </Link>
                   <button
                     onClick={() => {
@@ -132,7 +139,7 @@ export default function Header() {
                     }}
                     className="w-full text-left px-4 py-2 rounded-md text-sm hover:bg-red-100 dark:hover:bg-red-800 text-red-600"
                   >
-                     Logout
+                    Logout
                   </button>
                 </div>
               </div>

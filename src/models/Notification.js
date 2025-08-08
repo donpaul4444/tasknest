@@ -1,7 +1,7 @@
 import { model, models, Schema } from "mongoose";
 
-const notifictionSchema = new Schema({
-  userId: {
+const notificationSchema = new Schema({
+  receiver: {
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
@@ -11,8 +11,9 @@ const notifictionSchema = new Schema({
     enum: ["invite", "task"],
     required: true,
   },
-  projectId: {
+  project: {
     type: Schema.Types.ObjectId,
+    ref:"Project",
     required: true,
   },
   isRead: {
@@ -27,4 +28,4 @@ const notifictionSchema = new Schema({
     timestamps:true
 });
 
-export default models.Notification || model("Notification", notifictionSchema);
+export default models.Notification || model("Notification", notificationSchema);
