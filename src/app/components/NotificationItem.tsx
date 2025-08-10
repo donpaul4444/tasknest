@@ -24,7 +24,7 @@ const NotificationItem = ({ notification }: props) => {
           </p>
           <div className="flex gap-2 mt-2">
             <button className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded">
-              Accept
+              Accepts
             </button>
             <button className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded">
               Declined
