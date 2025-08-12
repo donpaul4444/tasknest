@@ -44,30 +44,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const isAlreadyMember = project.members.some(
-      (memebrId: import("mongoose").Types.ObjectId | string) => memebrId.toString() === session.user._id.toString()
-    );
+    project.members.push(session.user._id);
+    await project.save();
 
-    if (isAlreadyMember) {
-      notification.isRead = true;
-      await notification.save();
+    notification.isRead = true;
+    await notification.save();
 
-      return NextResponse.json({
-        success: false,
-        message: "Already a member",
-      });
-    } else {
-      project.members.push(session.user._id);
-      await project.save();
-
-      notification.isRead = true;
-      await notification.save();
-
-      return NextResponse.json({
-        success: true,
-        message: "successfully Added to Project",
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      message: "successfully Added to Project",
+    });
   } catch (error) {
     return NextResponse.json({ success: false, message: error.message });
   }

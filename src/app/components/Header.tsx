@@ -50,14 +50,31 @@ export default function Header() {
   const handleLogout = () => {
     signOut({ callbackUrl: "/" });
   };
-  
-  const handleAccept = async (notificationId:string)=>{
-const res=await axios.post("/api/notification/accept",{notificationId})
 
-console.log("resposne",res);
+  const handleAction = async (notificationId: string) => {
+    try {
+      const res = await axios.post("/api/notification/action", {
+        notificationId,
+      });
 
+      console.log("resposne", res);
+    } catch (error) {
+       console.error("Error performing action:", error);
+    }
+  };
 
-  }
+  const handleIsRead = async (notificationId: string) => {
+    try {
+      const res = await axios.post("/api/notification/isread", {
+        notificationId,
+      });
+
+      console.log("resposne", res);
+    } catch (error) {
+       console.error("Error performing action:", error);
+    }
+  };
+
   return (
     <header className="w-full bg-white dark:bg-black dark:text-white shadow-md fixed top-0 left-0 z-40">
       <div className="max-w-screen-2xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -98,18 +115,13 @@ console.log("resposne",res);
             >
               <Bell className="w-5 h-5" />
             </button>
-            {notifOpen &&
-              notifications
-                .filter((n: NotificationType) => !n.isRead)
-                .map((notification: NotificationType) => (
-                  <NotificationItem
-                    key={notification._id}
-                    notification={notification}
-                    onAccept={() => handleAccept(notification._id)}
-                    onDecline={()=>handleDecline(notification._id)}
-                  />
-                ))}
-
+            {notifOpen && (
+              <NotificationItem
+                notifications={notifications}
+                handleAction={handleAction}
+                handleIsRead={handleIsRead}
+              />
+            )}
           </div>
 
           {/* Profile Dropdown */}

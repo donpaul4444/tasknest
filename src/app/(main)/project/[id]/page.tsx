@@ -1,7 +1,7 @@
 "use client";
 
 import AddTeamMate from "@/app/components/AddTeamMate";
-import TeamMemebrs from "@/app/components/TeamMembers";
+import TeamMembers from "@/app/components/TeamMembers";
 import { UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 
@@ -34,7 +34,7 @@ export default function ProjectBoardPage() {
                 <Users size={18} />
                 <span className="hidden sm:inline">Team Members</span>
               </button>
-              {isOpen && <TeamMemebrs />}
+              {isOpen && <TeamMembers />}
             </div>
 
             {/* Add Teammate Button */}
