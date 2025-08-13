@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       project: projectId,
       type: "invite",
     });
-    return NextResponse.json({ success: true, notification: newNotification });
+    return NextResponse.json({ success: true, notification: newNotification,message:"Invitation send" });
   } catch (error) {
     return NextResponse.json({ success: false, message: error });
   }
@@ -52,7 +52,7 @@ try {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const notifications = await Notification.find({ receiver: session.user._id })
+    const notifications = await Notification.find({ receiver: session.user._id ,isRead:false})
       .sort({ createdAt: -1 })
       .populate("sender", "email")
       .populate("project", "name");

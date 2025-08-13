@@ -10,14 +10,13 @@ import { Bell, ChevronDown, User } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
 import NotificationItem from "./NotificationItem";
+import { useUIStore } from "@/store/uiStore";
+import Sidebar from "./Sidebar";
+import toast from "react-hot-toast";
 
-// Define the NotificationType interface according to your notification object structure
 interface NotificationType {
   _id: string;
-  title: string;
-  message: string;
-  isRead: boolean;
-  type: "invite" | "task";
+  type: "invite" | "task" | "accept" | "decline";
   createdAt: string;
 }
 
@@ -25,10 +24,14 @@ export default function Header() {
   const { theme, setTheme } = useTheme();
   const [checked, setChecked] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const [notifOpen, setNotifOpen] = useState<boolean>(false);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const { data: session, status } = useSession();
+
+  const { openDropdownId, setOpenDropdownId } = useUIStore();
+
+  const toggleDropdown = (id: string) => {
+    setOpenDropdownId(openDropdownId === id ? null : id);
+  };
 
   useEffect(() => {
     setChecked(theme === "dark");
@@ -51,27 +54,34 @@ export default function Header() {
     signOut({ callbackUrl: "/" });
   };
 
-  const handleAction = async (notificationId: string) => {
+  const handleAction = async (notificationId: string, action: string) => {
     try {
       const res = await axios.post("/api/notification/action", {
         notificationId,
+        action,
       });
 
-      console.log("resposne", res);
+      setNotifications((prev) =>
+        prev.filter((notif) => notif._id !== notificationId)
+      );
+      if (res.data.success) {
+        toast.success(res.data?.message);
+      }
     } catch (error) {
-       console.error("Error performing action:", error);
+      console.error("Error performing action:", error);
     }
   };
 
   const handleIsRead = async (notificationId: string) => {
     try {
-      const res = await axios.post("/api/notification/isread", {
+      await axios.post("/api/notification/isread", {
         notificationId,
       });
-
-      console.log("resposne", res);
+      setNotifications((prev) =>
+        prev.filter((notif) => notif._id !== notificationId)
+      );
     } catch (error) {
-       console.error("Error performing action:", error);
+      console.error("Error performing action:", error);
     }
   };
 
@@ -105,17 +115,21 @@ export default function Header() {
           </div>
 
           {/* Notification */}
-          <div className="relative">
+          <div className="relative" data-dropdown-id="notificationbar">
             <button
               onClick={() => {
-                setNotifOpen(!notifOpen);
-                setMenuOpen(false);
+                toggleDropdown("notificationbar");
               }}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
+              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition relative"
             >
               <Bell className="w-5 h-5" />
+              {notifications.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {notifications.length}
+                </span>
+              )}
             </button>
-            {notifOpen && (
+            {openDropdownId === "notificationbar" && (
               <NotificationItem
                 notifications={notifications}
                 handleAction={handleAction}
@@ -125,12 +139,11 @@ export default function Header() {
           </div>
 
           {/* Profile Dropdown */}
-          <div className="relative">
+          <div className="relative" data-dropdown-id="sidebar">
             {status === "authenticated" && (
               <button
                 onClick={() => {
-                  setMenuOpen(!menuOpen);
-                  setNotifOpen(false);
+                  toggleDropdown("sidebar");
                 }}
                 className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
               >
@@ -148,30 +161,8 @@ export default function Header() {
                 <ChevronDown className="w-4 h-4" />
               </button>
             )}
-
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-black shadow-lg border border-gray-200 dark:border-gray-700 z-50 rounded-md">
-                <div className="p-4 space-y-4">
-                  <p className="text-base font-semibold">
-                    Welcome, {session?.user?.name}
-                  </p>
-                  <Link
-                    href="/project"
-                    className="block px-4 py-2 rounded-md text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    Home
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setShowModal(true);
-                      setMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-2 rounded-md text-sm hover:bg-red-100 dark:hover:bg-red-800 text-red-600"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
+            {openDropdownId === "sidebar" && (
+              <Sidebar setShowModal={setShowModal} session={session} />
             )}
           </div>
         </div>

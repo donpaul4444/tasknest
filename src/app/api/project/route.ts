@@ -1,19 +1,37 @@
 
+import { authOptions } from "@/lib/authOptions";
 import { connectToDB } from "@/lib/mongoose";
 import Project from "@/models/Project";
 import User from "@/models/User";
+import { getServerSession } from "next-auth";
 import { NextResponse, NextRequest } from "next/server";
+
+interface CustomSession {
+  user: {
+    _id: string;
+    email?: string | null;
+    name?: string | null;
+    image?: string | null;
+  };
+}
 
 export async function POST(req: NextRequest) {
   try {
     await connectToDB()
     const body = await req.json();
-    const { name, email } = body;
+    const { name} = body;
+     const session = (await getServerSession(
+        authOptions
+      )) as CustomSession | null;
+  
+      if (!session || !session.user || !session.user._id) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
 
-    if (!name || !email) {
+    if (!name) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
-    const user = await User.findOne({ email: "donpaul4444@gmail.com" });
+    const user = await User.findById(session.user._id);
     if (!user) throw new Error("User not found");
     const newProject = await Project.create({ name, createdBy: user._id });
     return NextResponse.json(
@@ -26,19 +44,24 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    await connectToDB();
-    const email = req.nextUrl.searchParams.get("email");
-
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
-    }
-    const user = await User.findOne({ email });
+   await connectToDB();
+  
+      const session = (await getServerSession(
+        authOptions
+      )) as CustomSession | null;
+  
+      if (!session || !session.user || !session.user._id) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+ 
+    const user = await User.findById(session.user._id);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    const projects = await Project.find({ createdBy: user._id }).sort({
+
+    const projects = await Project.find({$or:[{ createdBy: user._id },{members:user._id}]}).sort({
       createdAt: -1,
     });
 

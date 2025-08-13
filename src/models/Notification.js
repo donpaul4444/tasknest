@@ -8,7 +8,7 @@ const notificationSchema = new Schema({
   },
   type: {
     type: String,
-    enum: ["invite", "task"],
+    enum: ["invite", "task", "accept", "decline"],
     required: true,
   },
   project: {

@@ -1,18 +1,21 @@
 import { useProjectStore } from "@/store/projectStore";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import ConfirmModal from "./ConfirmModal";
+import toast from "react-hot-toast";
 
 const AddTeamMate = () => {
   const { projectId } = useProjectStore() as { projectId: string };
-  const [nonMembers, setNonMembers] = useState([]);
+  type NonMember = { _id: string; email: string };
+  const [nonMembers, setNonMembers] = useState<NonMember[]>([]);
+  const[showModal,setShowModal]=useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get(`/api/addteammates?projectId=${projectId}`);
 
-        console.log(res.data.result);
-        setNonMembers(res.data.result);
+        setNonMembers(res.data.result || []);
       } catch (error) {
         console.log("error", error);
       }
@@ -22,15 +25,19 @@ const AddTeamMate = () => {
 
   const handleSendInvite = async (receiverId: string) => {
     try {
-      const res = await axios.post("/api/notification",{receiverId,projectId});
-      console.log("response", res);
+     const res= await axios.post("/api/notification",{receiverId,projectId});
+      setNonMembers((prev)=>prev.filter((tn)=>tn._id !==receiverId ))
+      if(res.data.success){
+
+        toast.success(res.data.message);
+      }
     } catch (error) {
       console.log("error",error);
       
     }
   };
   return (
-    <div className="absolute z-50 right-0 mt-2 w-80 max-h-[400px] overflow-y-auto bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-4">
+    <div className="absolute z-50 right-0 mt-2 w-80 h-96 overflow-y-auto bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-4">
       <input
         type="text"
         placeholder="Search by email"
@@ -48,13 +55,18 @@ const AddTeamMate = () => {
             </span>
             <button
               className="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md transition-colors"
-              onClick={() => handleSendInvite(_id)}
+              onClick={() =>{ 
+                setShowModal(true)}}
             >
               Send
             </button>
+            <ConfirmModal isOpen={showModal} onClose={() => setShowModal(false)} onConfirm={()=> handleSendInvite(_id) }  title="Invite Confirmation"
+        message="Are you sure you want to send Invitation?"/>
           </li>
         ))}
       </ul>
+
+     
     </div>
   );
 };

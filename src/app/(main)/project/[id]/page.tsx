@@ -2,12 +2,29 @@
 
 import AddTeamMate from "@/app/components/AddTeamMate";
 import TeamMembers from "@/app/components/TeamMembers";
+import { useUIStore } from "@/store/uiStore";
+import axios from "axios";
 import { UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 
 export default function ProjectBoardPage() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isOpenAdd, setIsOpenAdd] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
+  // const [isOpenAdd, setIsOpenAdd] = useState(false);
+    const { openDropdownId, setOpenDropdownId } = useUIStore()
+    
+  const toggleDropdown = (id: string) => {
+    setOpenDropdownId(openDropdownId === id ? null : id)
+  }
+
+ const handleCreateTask=async()=>{
+try {
+  const res= await axios.post("/api/task")
+} catch (error) {
+  
+}
+ }
+
+
   return (
     <div className="p-4 sm:p-6 lg:p-10">
       {/* Header */}
@@ -21,32 +38,32 @@ export default function ProjectBoardPage() {
           </p>
         </div>
         <div className="flex gap-5 justify-end">
-          <button className="bg-red-700 text-white dark:bg-white dark:text-black px-2 rounded-lg hover:opacity-90 transition">
+          <button className="bg-red-700 text-white dark:bg-white dark:text-black px-2 rounded-lg hover:opacity-90 transition" onClick={handleCreateTask}>
             + Create
           </button>
           <div className="flex items-center gap-3">
             {/* View Teammates Button */}
-            <div className="relative">
+            <div className="relative" data-dropdown-id="teamMembers">
               <button
                 className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition"
-                onClick={() => setIsOpen((prev) => !prev)}
+                onClick={() => toggleDropdown("teamMembers")}
               >
                 <Users size={18} />
                 <span className="hidden sm:inline">Team Members</span>
               </button>
-              {isOpen && <TeamMembers />}
+            {openDropdownId === "teamMembers" && <TeamMembers />}
             </div>
 
             {/* Add Teammate Button */}
-            <div className="relative">
+            <div className="relative" data-dropdown-id="addTeammate">
               <button
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition"
-                onClick={() => setIsOpenAdd((prev) => !prev)}
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition dark:bg-white dark:text-black"
+                onClick={() => toggleDropdown("addTeammate")}
               >
                 <UserPlus size={18} />
                 <span className="hidden sm:inline">Add Teammate</span>
               </button>
-              {isOpenAdd && <AddTeamMate />}
+                 {openDropdownId === "addTeammate" && <AddTeamMate />}
             </div>
           </div>
         </div>

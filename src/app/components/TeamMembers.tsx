@@ -4,13 +4,14 @@ import { useProjectStore } from "@/store/projectStore";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import ConfirmModal from "./ConfirmModal";
+import toast from "react-hot-toast";
 
 const TeamMembers = () => {
   const { projectId } = useProjectStore() as { projectId: string };
   type Teammate = { email: string; _id: string };
   const [teamMates, setTeamMates] = useState<Teammate[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const[selectedUser,setSelectedUser]=useState('')
+  const [selectedUser, setSelectedUser] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,16 +25,21 @@ const TeamMembers = () => {
     fetchData();
   }, [projectId]);
 
-  const handleRemoveUser = async() => {
+  const handleRemoveUser = async () => {
+    const res = await axios.post("/api/teammates", {
+      projectId,
+      userId: selectedUser,
+    });
+    setTeamMates((prev) => prev.filter((tm) => tm._id !== selectedUser));
 
-    const res= await axios.post("/api/teammates",{projectId,userId:selectedUser})
-    console.log("response",res);
-    
-    setShowModal(false)
-    setSelectedUser("")
+    setShowModal(false);
+    setSelectedUser("");
+    if (res.data.success) {
+      toast.success(res.data.message);
+    }
   };
   return (
-    <div className="absolute z-50 right-0 mt-2 w-80 max-h-[400px] overflow-y-auto bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-4">
+    <div className="absolute z-50 right-0 mt-2 w-80 h-96 overflow-y-auto bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-4">
       <input
         type="text"
         placeholder="Search by email"
@@ -52,8 +58,9 @@ const TeamMembers = () => {
             <button
               className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors"
               onClick={() => {
-                setShowModal(true) 
-                setSelectedUser(teammate._id)}} 
+                setShowModal(true);
+                setSelectedUser(teammate._id);
+              }}
             >
               Remove
             </button>
