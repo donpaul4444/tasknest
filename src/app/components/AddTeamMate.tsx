@@ -61,7 +61,7 @@ const AddTeamMate = () => {
               Send
             </button>
             <ConfirmModal isOpen={showModal} onClose={() => setShowModal(false)} onConfirm={()=> handleSendInvite(_id) }  title="Invite Confirmation"
-        message="Are you sure you want to send Invitation?"/>
+        message="you want to send Invitation?"/>
           </li>
         ))}
       </ul>
