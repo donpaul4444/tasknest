@@ -34,7 +34,7 @@ try {
             Project Board
           </h1>
           <p className="text-gray-600 dark:text-gray-300 text-lg">
-            Portfolio Website
+            Portfolio Websites
           </p>
         </div>
         <div className="flex gap-5 justify-end">
