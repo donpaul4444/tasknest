@@ -123,7 +123,7 @@ export default function Header() {
               className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition relative"
             >
               <Bell className="w-5 h-5" />
-              {notifications.length > 0 && (
+              {notifications?.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                   {notifications.length}
                 </span>

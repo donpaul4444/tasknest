@@ -1,29 +1,52 @@
 "use client";
 
 import AddTeamMate from "@/app/components/AddTeamMate";
+import CreateTaskModal from "@/app/components/CreateTaskModal";
 import TeamMembers from "@/app/components/TeamMembers";
+import { useProjectStore } from "@/store/projectStore";
 import { useUIStore } from "@/store/uiStore";
 import axios from "axios";
 import { UserPlus, Users } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ProjectBoardPage() {
-  // const [isOpen, setIsOpen] = useState(false);
-  // const [isOpenAdd, setIsOpenAdd] = useState(false);
-    const { openDropdownId, setOpenDropdownId } = useUIStore()
-    
+  const [isOpen, setIsOpen] = useState(false);
+  const [taskData, setTaskData] = useState({
+    title: "",
+    description: "",
+    assignedTo: "",
+    priority: "",
+  });
+  const { projectId } = useProjectStore();
+  const [teamMates, setTeamMates] = useState<{ email: string; _id: string }[]>([]);
+
+  const { openDropdownId, setOpenDropdownId } = useUIStore();
+
   const toggleDropdown = (id: string) => {
-    setOpenDropdownId(openDropdownId === id ? null : id)
-  }
+    setOpenDropdownId(openDropdownId === id ? null : id);
+  };
 
- const handleCreateTask=async()=>{
-try {
-  const res= await axios.post("/api/task")
-} catch (error) {
-  
-}
- }
-
+  useEffect(() => {
+    if (!projectId) return;
+    const fetchData = async () => {
+      const res = await axios.get(`/api/teammates?projectId=${projectId}`);
+      setTeamMates(res?.data?.result);
+      console.log("fetched", res?.data?.result);
+    };
+    fetchData();
+  }, [isOpen, projectId]);
+  const handleCreateTask = async () => {
+    try {
+      const res = await axios.post("/api/task", { ...taskData });
+      setTaskData({
+        title: "",
+        description: "",
+        assignedTo: "",
+        priority: "medium",
+      });
+      console.log("taskData", taskData);
+    } catch (error) {}
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-10">
@@ -38,7 +61,10 @@ try {
           </p>
         </div>
         <div className="flex gap-5 justify-end">
-          <button className="bg-red-700 text-white dark:bg-white dark:text-black px-2 rounded-lg hover:opacity-90 transition" onClick={handleCreateTask}>
+          <button
+            className="bg-red-700 text-white dark:bg-white dark:text-black px-2 rounded-lg hover:opacity-90 transition"
+            onClick={() => setIsOpen(true)}
+          >
             + Create
           </button>
           <div className="flex items-center gap-3">
@@ -51,7 +77,7 @@ try {
                 <Users size={18} />
                 <span className="hidden sm:inline">Team Member</span>
               </button>
-            {openDropdownId === "teamMembers" && <TeamMembers />}
+              {openDropdownId === "teamMembers" && <TeamMembers  teamMates={teamMates} setTeamMates={setTeamMates}/>}
             </div>
 
             {/* Add Teammate Button */}
@@ -63,7 +89,7 @@ try {
                 <UserPlus size={18} />
                 <span className="hidden sm:inline">Add Teammate</span>
               </button>
-                 {openDropdownId === "addTeammate" && <AddTeamMate />}
+              {openDropdownId === "addTeammate" && <AddTeamMate />}
             </div>
           </div>
         </div>
@@ -93,6 +119,15 @@ try {
           ))}
         </div>
       </div>
+
+      <CreateTaskModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        taskData={taskData}
+        setTaskData={setTaskData}
+        onSubmit={handleCreateTask}
+        teamMates={teamMates}
+      />
     </div>
   );
 }

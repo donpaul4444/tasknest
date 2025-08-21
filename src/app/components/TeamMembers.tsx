@@ -2,28 +2,19 @@
 
 import { useProjectStore } from "@/store/projectStore";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import ConfirmModal from "./ConfirmModal";
 import toast from "react-hot-toast";
-
-const TeamMembers = () => {
+interface TeamMembersProps {
+  teamMates: { email: string; _id: string }[];
+  setTeamMates: React.Dispatch<React.SetStateAction<{ email: string; _id: string }[]>>;
+}
+const TeamMembers = ({teamMates,setTeamMates}:TeamMembersProps) => {
   const { projectId } = useProjectStore() as { projectId: string };
-  type Teammate = { email: string; _id: string };
-  const [teamMates, setTeamMates] = useState<Teammate[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(`/api/teammates?projectId=${projectId}`);
-        setTeamMates(res.data.result);
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
-    fetchData();
-  }, [projectId]);
+
 
   const handleRemoveUser = async () => {
     const res = await axios.post("/api/teammates", {
