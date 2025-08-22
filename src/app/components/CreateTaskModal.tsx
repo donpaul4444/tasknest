@@ -1,7 +1,8 @@
 "use client";
-import { useProjectStore } from "@/store/projectStore";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+
+import { useState } from "react";
+import toast from "react-hot-toast";
+
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ const CreateTaskModal = ({
   teamMates
 }: CreateTaskModalProps) => {
 
+const [showDropdown, setShowDropdown] = useState(false);
  
 
   if (!isOpen) return null;
@@ -35,7 +37,14 @@ const CreateTaskModal = ({
     setTaskData((prev: any) => ({ ...prev, [name]: value }));
   };
 
-
+  const handleCreate = () => {
+    if (!taskData.title.trim() || !taskData.description.trim()) {
+      toast.error("Title and Description are required!");
+      return;
+    }
+    onSubmit();
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center border">
@@ -72,17 +81,13 @@ const CreateTaskModal = ({
               value={taskData.assignedTo}
               onChange={handleChange}
               autoComplete="off"  
+              onFocus={()=>setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
 
             />
-            {teamMates.length > 0 && taskData.assignedTo !== "" && (
+            {showDropdown  && (
               <ul className="absolute z-10 bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
-                {teamMates
-                  .filter((mate: any) =>
-                    mate.email
-                      .toLowerCase()
-                      .includes(taskData.assignedTo.toLowerCase())
-                  )
-                  .slice(0, 20)
+                {teamMates.slice(0, 20)
                   .map((mate: any) => (
                     <li
                       key={mate._id}
@@ -94,7 +99,7 @@ const CreateTaskModal = ({
                         }))
                       }
                     >
-            
+            {mate.email}
                     </li>
                   ))}
               </ul>
@@ -131,10 +136,7 @@ const CreateTaskModal = ({
             Cancel
           </button>
           <button
-            onClick={() => {
-              onSubmit();
-              onClose();
-            }}
+            onClick={handleCreate}
             className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500"
           >
             Create

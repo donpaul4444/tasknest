@@ -31,7 +31,6 @@ export default function ProjectBoardPage() {
     const fetchData = async () => {
       const res = await axios.get(`/api/teammates?projectId=${projectId}`);
       setTeamMates(res?.data?.result);
-      console.log("fetched", res?.data?.result);
     };
     fetchData();
   }, [isOpen, projectId]);
@@ -57,7 +56,7 @@ export default function ProjectBoardPage() {
             Project Board
           </h1>
           <p className="text-gray-600 dark:text-gray-300 text-lg">
-            Portfolio Websites
+            Portfolio Website
           </p>
         </div>
         <div className="flex gap-5 justify-end">
