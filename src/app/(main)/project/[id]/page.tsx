@@ -6,25 +6,60 @@ import TeamMembers from "@/app/components/TeamMembers";
 import { useProjectStore } from "@/store/projectStore";
 import { useUIStore } from "@/store/uiStore";
 import axios from "axios";
-import { UserPlus, Users } from "lucide-react";
+import { Plus, UserPlus, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+type User = {
+  _id: string;
+  email: string;
+};
+
+type Task = {
+  _id?: string;
+  title: string;
+  description: string;
+  assignedTo: User | null;
+  priority: string;
+  status: string;
+};
 
 export default function ProjectBoardPage() {
   const [isOpen, setIsOpen] = useState(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [project, setProject] = useState<{ createdBy: string } | null>(null);
+  const { data: session, status } = useSession();
   const [taskData, setTaskData] = useState({
     title: "",
     description: "",
     assignedTo: "",
-    priority: "",
+    priority: "low",
   });
   const { projectId } = useProjectStore();
-  const [teamMates, setTeamMates] = useState<{ email: string; _id: string }[]>([]);
+  const [teamMates, setTeamMates] = useState<{ email: string; _id: string }[]>(
+    []
+  );
 
   const { openDropdownId, setOpenDropdownId } = useUIStore();
 
   const toggleDropdown = (id: string) => {
     setOpenDropdownId(openDropdownId === id ? null : id);
   };
+  useEffect(() => {
+    if (!projectId) return;
+    const fetchProject = async () => {
+      const res = await axios.get("/api/project");
+       const project = res.data.find(
+        (p: any) => p._id === projectId
+      );
+      console.log(project);
+      console.log(session?.user?._id);
+      
+      
+      setProject(project || null);
+    };
+    fetchProject();
+  }, [projectId]);
 
   useEffect(() => {
     if (!projectId) return;
@@ -34,18 +69,33 @@ export default function ProjectBoardPage() {
     };
     fetchData();
   }, [isOpen, projectId]);
+
   const handleCreateTask = async () => {
     try {
-      const res = await axios.post("/api/task", { ...taskData });
+      const res = await axios.post("/api/task", { ...taskData, projectId });
       setTaskData({
         title: "",
         description: "",
         assignedTo: "",
-        priority: "medium",
+        priority: "",
       });
-      console.log("taskData", taskData);
+      if (res.data.success) {
+        toast.success("Task Created Successfully");
+      }
     } catch (error) {}
   };
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await axios.get(`/api/task?projectId=${projectId}`);
+        setTasks(res?.data?.tasks);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchTasks();
+  }, [projectId]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-10">
@@ -59,37 +109,45 @@ export default function ProjectBoardPage() {
             Portfolio Website
           </p>
         </div>
-        <div className="flex gap-5 justify-end">
-          <button
-            className="bg-red-700 text-white dark:bg-white dark:text-black px-2 rounded-lg hover:opacity-90 transition"
-            onClick={() => setIsOpen(true)}
-          >
-            + Create
-          </button>
-          <div className="flex items-center gap-3">
-            {/* View Teammates Button */}
-            <div className="relative" data-dropdown-id="teamMembers">
-              <button
-                className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition"
-                onClick={() => toggleDropdown("teamMembers")}
-              >
-                <Users size={18} />
-                <span className="hidden sm:inline">Team Member</span>
-              </button>
-              {openDropdownId === "teamMembers" && <TeamMembers  teamMates={teamMates} setTeamMates={setTeamMates}/>}
-            </div>
 
-            {/* Add Teammate Button */}
-            <div className="relative" data-dropdown-id="addTeammate">
-              <button
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition dark:bg-white dark:text-black"
-                onClick={() => toggleDropdown("addTeammate")}
-              >
-                <UserPlus size={18} />
-                <span className="hidden sm:inline">Add Teammate</span>
-              </button>
-              {openDropdownId === "addTeammate" && <AddTeamMate />}
-            </div>
+        <div className="flex items-end gap-3  ml-auto">
+          {project?.createdBy === session?.user?._id && (
+            <>
+              <div>
+                <button
+                  className="flex items-center gap-2 bg-red-800 text-white px-4 py-2 rounded-lg hover:bg-red-700 dark:bg-white dark:text-black dark:hover:bg-red-100 transition"
+                  onClick={() => setIsOpen(true)}
+                >
+                  <Plus size={18} />
+                  <span className="hidden sm:inline"> Create</span>
+                </button>
+              </div>
+
+              {/* Add Teammate Button */}
+              <div className="relative" data-dropdown-id="addTeammate">
+                <button
+                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition dark:bg-white dark:text-black"
+                  onClick={() => toggleDropdown("addTeammate")}
+                >
+                  <UserPlus size={18} />
+                  <span className="hidden sm:inline">Add Teammate</span>
+                </button>
+                {openDropdownId === "addTeammate" && <AddTeamMate />}
+              </div>
+            </>
+          )}
+          {/* View Teammates Button */}
+          <div className="relative" data-dropdown-id="teamMembers">
+            <button
+              className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition"
+              onClick={() => toggleDropdown("teamMembers")}
+            >
+              <Users size={18} />
+              <span className="hidden sm:inline">Team Member</span>
+            </button>
+            {openDropdownId === "teamMembers" && (
+              <TeamMembers teamMates={teamMates} setTeamMates={setTeamMates} />
+            )}
           </div>
         </div>
       </div>
@@ -97,22 +155,40 @@ export default function ProjectBoardPage() {
       {/* Board */}
       <div className="overflow-x-auto">
         <div className="flex flex-col lg:flex-row  gap-4 lg:min-w-full">
-          {["To Do", "In Progress", "Review", "Done"].map((column) => (
+          {["todo", "on-progress", "review", "done"].map((status) => (
             <div
-              key={column}
-              className="flex-1  h-[400px] lg:mt-0 mt-5 w-full  bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg p-4 border border-gray-200 dark:border-gray-700 flex flex-col lg:max-h-[70vh] lg:h-screen "
+              key={status}
+              className="flex-1 h-[400px] lg:mt-0 mt-5 w-full bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg p-4 border border-gray-200 dark:border-gray-700 flex flex-col lg:max-h-[70vh] lg:h-screen"
             >
               <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
-                {column}
+                {tasks.filter((task: Task) => task.status === status)
+                  ? "To Do"
+                  : status === "in-progress"
+                  ? "In Progress"
+                  : status === "review"
+                  ? "Review"
+                  : "Done"}
               </h3>
+
               <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100">
-                  Sample Task
-                </div>
-                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100">
-                  Another Task
-                </div>
-                {/* Add more sample tasks if needed */}
+                {tasks
+                  .filter((task: Task) => task.status === status)
+                  .slice()
+                  .reverse()
+                  .map((task) => (
+                    <div
+                      key={task._id}
+                      className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100"
+                    >
+                      <p className="font-semibold">{task.title}</p>
+                      <p className="text-gray-500">{task.description}</p>
+                      <p className="text-xs mt-1 text-gray-600">
+                        Assigned:{task.assignedTo?.email}
+                      </p>
+                    </div>
+                  ))}
+                {tasks.filter((task) => task.status === status).length ===
+                  0 && <p className="text-gray-500 text-sm">No tasks</p>}
               </div>
             </div>
           ))}

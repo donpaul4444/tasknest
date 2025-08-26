@@ -3,7 +3,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-
 interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,7 +14,7 @@ interface CreateTaskModalProps {
   };
   setTaskData: React.Dispatch<React.SetStateAction<any>>;
   onSubmit: () => void;
-  teamMates:{_id:string; email:string}[]
+  teamMates: { _id: string; email: string }[];
 }
 
 const CreateTaskModal = ({
@@ -24,11 +23,14 @@ const CreateTaskModal = ({
   taskData,
   setTaskData,
   onSubmit,
-  teamMates
+  teamMates,
 }: CreateTaskModalProps) => {
-
-const [showDropdown, setShowDropdown] = useState(false);
- 
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [errors, setErrors] = useState({
+    title: "",
+    description: "",
+    assignedTo: "",
+  });
 
   if (!isOpen) return null;
 
@@ -38,10 +40,23 @@ const [showDropdown, setShowDropdown] = useState(false);
   };
 
   const handleCreate = () => {
-    if (!taskData.title.trim() || !taskData.description.trim()) {
-      toast.error("Title and Description are required!");
-      return;
+    const formErrors = { title: "", description: "", assignedTo: "" };
+    let hasError = false;
+    if (!taskData.title.trim()) {
+      formErrors.title = "Title cannot be Empty";
+      hasError = true;
     }
+    if (!taskData.description.trim()) {
+      formErrors.description = "Description cannot be Empty";
+      hasError = true;
+    }
+    if (!taskData.assignedTo.trim()) {
+      formErrors.assignedTo = "Please assign someone";
+      hasError = true;
+    }
+
+    setErrors(formErrors);
+    if (hasError) return;
     onSubmit();
     onClose();
   };
@@ -54,21 +69,37 @@ const [showDropdown, setShowDropdown] = useState(false);
           <label className="block text-sm font-medium">Title</label>
           <input
             name="title"
-            className="w-full border rounded-lg p-2 mt-1"
+            className={`w-full border rounded-lg p-2 mt-1 ${
+              errors.title ? "border-red-500" : ""
+            }`}
             value={taskData.title}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e);
+              setErrors((prev) => ({ ...prev, title: "" }));
+            }}
             required
           />
+          {errors.title && (
+            <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium">Description</label>
           <textarea
             name="description"
-            className="w-full border rounded-lg p-2 mt-1"
+            className={`w-full border rounded-lg p-2 mt-1 ${
+              errors.description ? "border-red-500" : ""
+            }`}
             rows={3}
             value={taskData.description}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e);
+              setErrors((prev) => ({ ...prev, description: "" }));
+            }}
           />
+          {errors.description && (
+            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium">Assign To</label>
@@ -76,33 +107,43 @@ const [showDropdown, setShowDropdown] = useState(false);
             <input
               name="assignedTo"
               type="text"
-              className="w-full border rounded-lg p-2 mt-1"
-              placeholder="email id"
+              className={`w-full border rounded-lg p-2 mt-1 ${
+                errors.assignedTo ? "border-red-500" : ""
+              }`}
+              placeholder="Select a teammate"
               value={taskData.assignedTo}
-              onChange={handleChange}
-              autoComplete="off"  
-              onFocus={()=>setShowDropdown(true)}
+              onChange={(e) => {
+                handleChange(e);
+              }}
+              readOnly
+              autoComplete="off"
+              onFocus={() => setShowDropdown(true)}
               onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
-
             />
-            {showDropdown  && (
+
+            {showDropdown && (
               <ul className="absolute z-10 bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
-                {teamMates.slice(0, 20)
-                  .map((mate: any) => (
-                    <li
-                      key={mate._id}
-                      className="p-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() =>
-                        setTaskData((prev) => ({
-                          ...prev,
-                          assignedTo: mate.email,
-                        }))
-                      }
-                    >
-            {mate.email}
-                    </li>
-                  ))}
+                {teamMates.slice(0, 20).map((mate: any) => (
+                  <li
+                    key={mate._id}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setTaskData((prev) => ({
+                        ...prev,
+                        assignedTo: mate.email,
+                      }));
+                      setErrors((prev) => ({ ...prev, assignedTo: "" }));
+                      setShowDropdown(false)
+                    }}
+                  >
+                    {mate.email}
+                  </li>
+                ))}
               </ul>
+            )}
+            {errors.assignedTo && (
+              <p className="text-red-500 text-sm mt-1">{errors.assignedTo}</p>
             )}
           </div>
         </div>
@@ -130,6 +171,7 @@ const [showDropdown, setShowDropdown] = useState(false);
                 assignedTo: "",
                 priority: "medium",
               });
+              setErrors({ title: "", description: "", assignedTo: "" });
             }}
             className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
           >

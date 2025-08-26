@@ -36,7 +36,6 @@ const CreateProjectModal = ({
 
       if (res.status === 201) {
         onProjectCreated(res.data.project);
-
         toast.success(res.data.message);
         setProjectName("");
         setError("");

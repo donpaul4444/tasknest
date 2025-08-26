@@ -3,11 +3,6 @@ import { model, models, Schema } from "mongoose";
 
 const taskSchema= new Schema(
     {
-        columnId:{
-            type:Schema.Types.ObjectId,
-            ref:"Column",
-            required:true
-        },
         title:{
             type:String,
             required:true
@@ -16,17 +11,21 @@ const taskSchema= new Schema(
         assignedTo:{
             type:Schema.Types.ObjectId,
             ref:"User",
-            required:false
+            required:true
         },
         priority:{
             type:String,
             enum:["low","medium","high"],
-            default:"low",
         },
         status:{
             type:String,
             enum:["todo","in-progress","review","done"],
             default:"todo"
+        },
+        projectId:{
+            type:Schema.Types.ObjectId,
+            ref:"Project",
+            required:true,
         }
     },{
         timestamps:true
