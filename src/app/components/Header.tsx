@@ -90,7 +90,7 @@ export default function Header() {
       <div className="max-w-screen-2xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link
-          href="/"
+          href="/project"
           className="text-2xl font-bold text-blue-600 dark:text-blue-400"
         >
           TaskNest

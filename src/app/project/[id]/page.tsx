@@ -27,7 +27,9 @@ type Task = {
 export default function ProjectBoardPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [project, setProject] = useState<{ createdBy: string } | null>(null);
+  const [project, setProject] = useState<{ name?: string; createdBy: { _id: string } } | null>(
+    null
+  );
   const { data: session, status } = useSession();
   const [taskData, setTaskData] = useState({
     title: "",
@@ -45,21 +47,21 @@ export default function ProjectBoardPage() {
   const toggleDropdown = (id: string) => {
     setOpenDropdownId(openDropdownId === id ? null : id);
   };
-  useEffect(() => {
-    if (!projectId) return;
-    const fetchProject = async () => {
-      const res = await axios.get("/api/project");
-       const project = res.data.find(
-        (p: any) => p._id === projectId
-      );
-      console.log(project);
-      console.log(session?.user?._id);
-      
-      
-      setProject(project || null);
-    };
-    fetchProject();
-  }, [projectId]);
+useEffect(() => {
+  if (!projectId) return;
+
+  const fetchProject = async () => {
+    try {
+      const res = await axios.get(`/api/projectId?projectId=${projectId}`);
+      setProject(res.data || null);
+      console.log("project", res.data);
+    } catch (error) {
+      console.error("Error fetching project:", error);
+    }
+  };
+
+  fetchProject();
+}, [projectId]);
 
   useEffect(() => {
     if (!projectId) return;
@@ -106,12 +108,12 @@ export default function ProjectBoardPage() {
             Project Board
           </h1>
           <p className="text-gray-600 dark:text-gray-300 text-lg">
-            Portfolio Website
+{project?.name}
           </p>
         </div>
 
         <div className="flex items-end gap-3  ml-auto">
-          {project?.createdBy === session?.user?._id && (
+          {project?.createdBy._id === session?.user?._id && (
             <>
               <div>
                 <button
@@ -155,43 +157,47 @@ export default function ProjectBoardPage() {
       {/* Board */}
       <div className="overflow-x-auto">
         <div className="flex flex-col lg:flex-row  gap-4 lg:min-w-full">
-          {["todo", "on-progress", "review", "done"].map((status) => (
-            <div
-              key={status}
-              className="flex-1 h-[400px] lg:mt-0 mt-5 w-full bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg p-4 border border-gray-200 dark:border-gray-700 flex flex-col lg:max-h-[70vh] lg:h-screen"
-            >
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
-                {tasks.filter((task: Task) => task.status === status)
-                  ? "To Do"
-                  : status === "in-progress"
-                  ? "In Progress"
-                  : status === "review"
-                  ? "Review"
-                  : "Done"}
-              </h3>
+          {["todo", "on-progress", "review", "done"].map((status) => {
+            const statusTitle =
+              status === "todo"
+                ? "To Do"
+                : status === "on-progress"
+                ? "In Progress"
+                : status === "review"
+                ? "Review"
+                : "Done";
 
-              <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                {tasks
-                  .filter((task: Task) => task.status === status)
-                  .slice()
-                  .reverse()
-                  .map((task) => (
-                    <div
-                      key={task._id}
-                      className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100"
-                    >
-                      <p className="font-semibold">{task.title}</p>
-                      <p className="text-gray-500">{task.description}</p>
-                      <p className="text-xs mt-1 text-gray-600">
-                        Assigned:{task.assignedTo?.email}
-                      </p>
-                    </div>
-                  ))}
-                {tasks.filter((task) => task.status === status).length ===
-                  0 && <p className="text-gray-500 text-sm">No tasks</p>}
+            return (
+              <div
+                key={status}
+                className="flex-1 h-[400px] lg:mt-0 mt-5 w-full bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg p-4 border border-gray-200 dark:border-gray-700 flex flex-col lg:max-h-[70vh] lg:h-screen"
+              >
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
+                  {statusTitle}
+                </h3>
+
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                  {tasks
+                    .filter((task: Task) => task.status === status)
+                    .reverse()
+                    .map((task) => (
+                      <div
+                        key={task._id}
+                        className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100"
+                      >
+                        <p className="font-semibold">{task.title}</p>
+                        <p className="text-gray-500">{task.description}</p>
+                        <p className="text-xs mt-1 text-gray-600">
+                          Assigned To: {task.assignedTo?.email}
+                        </p>
+                      </div>
+                    ))}
+                  {tasks.filter((task) => task.status === status).length ===
+                    0 && <p className="text-gray-500 text-sm">No tasks</p>}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

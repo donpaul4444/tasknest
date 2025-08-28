@@ -13,6 +13,7 @@ if(status=== "authenticated"){
   router.replace("/project")
 }
   },[status,router])
+  
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 px-4">
       <section className="bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-2xl shadow-xl text-center space-y-6 max-w-lg w-full">

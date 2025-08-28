@@ -63,7 +63,7 @@ export async function GET() {
 
     const projects = await Project.find({$or:[{ createdBy: user._id },{members:user._id}]}).sort({
       createdAt: -1,
-    });
+    }).populate("createdBy")
 
     return NextResponse.json(projects, { status: 200 });
   } catch (error) {
