@@ -105,7 +105,7 @@ useEffect(() => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-            Project Boardss
+            Project Board
           </h1>
           <p className="text-gray-600 dark:text-gray-300 text-lg">
 {project?.name}
