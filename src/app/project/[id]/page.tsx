@@ -145,7 +145,7 @@ useEffect(() => {
               onClick={() => toggleDropdown("teamMembers")}
             >
               <Users size={18} />
-              <span className="hidden sm:inline">Team Member</span>
+              <span className="hidden sm:inline">Team Members</span>
             </button>
             {openDropdownId === "teamMembers" && (
               <TeamMembers teamMates={teamMates} setTeamMates={setTeamMates} />
