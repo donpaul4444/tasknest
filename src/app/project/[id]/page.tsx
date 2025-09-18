@@ -2,6 +2,7 @@
 
 import AddTeamMate from "@/app/components/AddTeamMate";
 import CreateTaskModal from "@/app/components/CreateTaskModal";
+import TaskDetailModal from "@/app/components/TaskDetailModal";
 import TeamMembers from "@/app/components/TeamMembers";
 import { useProjectStore } from "@/store/projectStore";
 import { useUIStore } from "@/store/uiStore";
@@ -27,9 +28,11 @@ type Task = {
 export default function ProjectBoardPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [project, setProject] = useState<{ name?: string; createdBy: { _id: string } } | null>(
-    null
-  );
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [project, setProject] = useState<{
+    name?: string;
+    createdBy: { _id: string };
+  } | null>(null);
   const { data: session, status } = useSession();
   const [taskData, setTaskData] = useState({
     title: "",
@@ -47,21 +50,21 @@ export default function ProjectBoardPage() {
   const toggleDropdown = (id: string) => {
     setOpenDropdownId(openDropdownId === id ? null : id);
   };
-useEffect(() => {
-  if (!projectId) return;
+  useEffect(() => {
+    if (!projectId) return;
 
-  const fetchProject = async () => {
-    try {
-      const res = await axios.get(`/api/projectId?projectId=${projectId}`);
-      setProject(res.data || null);
-      console.log("project", res.data);
-    } catch (error) {
-      console.error("Error fetching project:", error);
-    }
-  };
+    const fetchProject = async () => {
+      try {
+        const res = await axios.get(`/api/projectId?projectId=${projectId}`);
+        setProject(res.data || null);
+        console.log("project", res.data);
+      } catch (error) {
+        console.error("Error fetching project:", error);
+      }
+    };
 
-  fetchProject();
-}, [projectId]);
+    fetchProject();
+  }, [projectId]);
 
   useEffect(() => {
     if (!projectId) return;
@@ -108,7 +111,7 @@ useEffect(() => {
             Project Board
           </h1>
           <p className="text-gray-600 dark:text-gray-300 text-lg">
-{project?.name}
+            {project?.name}
           </p>
         </div>
 
@@ -184,9 +187,9 @@ useEffect(() => {
                       <div
                         key={task._id}
                         className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100"
+                        onClick={() => setSelectedTask(task)}
                       >
                         <p className="font-semibold">{task.title}</p>
-                        <p className="text-gray-500">{task.description}</p>
                         <p className="text-xs mt-1 text-gray-600">
                           Assigned To: {task.assignedTo?.email}
                         </p>
@@ -209,6 +212,13 @@ useEffect(() => {
         onSubmit={handleCreateTask}
         teamMates={teamMates}
       />
+
+      {selectedTask && (
+        <TaskDetailModal
+          onClose={() => setSelectedTask(null)}
+          task={selectedTask}
+        />
+      )}
     </div>
   );
 }
