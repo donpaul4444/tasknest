@@ -1,16 +1,17 @@
 "use client";
 
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import AddTeamMate from "@/app/components/AddTeamMate";
 import CreateTaskModal from "@/app/components/CreateTaskModal";
-import TaskDetailModal from "@/app/components/TaskDetailModal";
 import TeamMembers from "@/app/components/TeamMembers";
 import { useProjectStore } from "@/store/projectStore";
 import { useUIStore } from "@/store/uiStore";
 import axios from "axios";
-import { Plus, UserPlus, Users } from "lucide-react";
+import { Plus, UserPlus, Users, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+
 type User = {
   _id: string;
   email: string;
@@ -28,12 +29,12 @@ type Task = {
 export default function ProjectBoardPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [project, setProject] = useState<{
     name?: string;
     createdBy: { _id: string };
   } | null>(null);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [taskData, setTaskData] = useState({
     title: "",
     description: "",
@@ -44,12 +45,12 @@ export default function ProjectBoardPage() {
   const [teamMates, setTeamMates] = useState<{ email: string; _id: string }[]>(
     []
   );
-
   const { openDropdownId, setOpenDropdownId } = useUIStore();
 
   const toggleDropdown = (id: string) => {
     setOpenDropdownId(openDropdownId === id ? null : id);
   };
+
   useEffect(() => {
     if (!projectId) return;
 
@@ -57,7 +58,6 @@ export default function ProjectBoardPage() {
       try {
         const res = await axios.get(`/api/projectId?projectId=${projectId}`);
         setProject(res.data || null);
-        console.log("project", res.data);
       } catch (error) {
         console.error("Error fetching project:", error);
       }
@@ -86,8 +86,11 @@ export default function ProjectBoardPage() {
       });
       if (res.data.success) {
         toast.success("Task Created Successfully");
+        setTasks((prev) => [...prev, res.data.task]); 
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -102,53 +105,85 @@ export default function ProjectBoardPage() {
     fetchTasks();
   }, [projectId]);
 
+  // --- 🔥 Handle Dragging
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination) return;
+
+    const { draggableId, destination, source } = result;
+
+    if (destination.droppableId === source.droppableId) return;
+
+    // update locally
+    setTasks((prev) =>
+      prev.map((task) =>
+        task._id === draggableId
+          ? { ...task, status: destination.droppableId }
+          : task
+      )
+    );
+
+    // update backend
+    try {
+      await axios.patch(`/api/tasks/${draggableId}`, {
+        status: destination.droppableId,
+      });
+    } catch (error) {
+      console.error("Error updating task status:", error);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const res = await axios.delete(`/api/tasks/${taskId}`);
+      if (res.data.success) {
+        toast.success("Task deleted");
+        setTasks((prev) => prev.filter((t) => t._id !== taskId));
+      }
+    } catch (error) {
+      toast.error("Failed to delete task");
+      console.error(error);
+    }
+  };
+
+  const statuses = ["todo", "on-progress", "review", "done"];
+
   return (
     <div className="p-4 sm:p-6 lg:p-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5 mt-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-            Project Board
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300 text-lg">
-            {project?.name}
-          </p>
+          <h1 className="text-2xl font-bold">Project Board</h1>
+          <p className="text-gray-600">{project?.name}</p>
         </div>
-
-        <div className="flex items-end gap-3  ml-auto">
+        <div className="flex  items-end gap-3 ml-auto">
           {project?.createdBy._id === session?.user?._id && (
             <>
-              <div>
+              <button
+                className="flex items-center gap-2 bg-red-800 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                onClick={() => setIsOpen(true)}
+              >
+                <Plus size={18} />
+                <span className="hidden sm:inline"> Create</span>
+              </button>
+              <div className="relative">
                 <button
-                  className="flex items-center gap-2 bg-red-800 text-white px-4 py-2 rounded-lg hover:bg-red-700 dark:bg-white dark:text-black dark:hover:bg-red-100 transition"
-                  onClick={() => setIsOpen(true)}
-                >
-                  <Plus size={18} />
-                  <span className="hidden sm:inline"> Create</span>
-                </button>
-              </div>
-
-              {/* Add Teammate Button */}
-              <div className="relative" data-dropdown-id="addTeammate">
-                <button
-                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition dark:bg-white dark:text-black"
+                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500"
                   onClick={() => toggleDropdown("addTeammate")}
                 >
                   <UserPlus size={18} />
-                  <span className="hidden sm:inline">Add Teammate</span>
+                  <span className="hidden sm:inline"> Add Teammate</span>
                 </button>
                 {openDropdownId === "addTeammate" && <AddTeamMate />}
               </div>
             </>
           )}
-          {/* View Teammates Button */}
-          <div className="relative" data-dropdown-id="teamMembers">
+          <div className="relative">
             <button
-              className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition"
+              className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
               onClick={() => toggleDropdown("teamMembers")}
             >
               <Users size={18} />
-              <span className="hidden sm:inline">Team Members</span>
+              <span className="hidden sm:inline"> Team Members</span>
             </button>
             {openDropdownId === "teamMembers" && (
               <TeamMembers teamMates={teamMates} setTeamMates={setTeamMates} />
@@ -157,53 +192,70 @@ export default function ProjectBoardPage() {
         </div>
       </div>
 
-      {/* Board */}
-      <div className="overflow-x-auto">
-        <div className="flex flex-col lg:flex-row  gap-4 lg:min-w-full">
-          {["todo", "on-progress", "review", "done"].map((status) => {
-            const statusTitle =
-              status === "todo"
-                ? "To Do"
-                : status === "on-progress"
-                ? "In Progress"
-                : status === "review"
-                ? "Review"
-                : "Done";
+      {/* --- Kanban Board with Drag & Drop --- */}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="flex flex-col lg:flex-row gap-4">
+          {statuses.map((status) => (
+            <Droppable droppableId={status} key={status}>
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="flex-1 bg-gray-100 rounded-2xl shadow p-4 dark:bg-gray-800  h-[600px] flex flex-col"
+                >
+                  <h3 className="text-lg font-semibold mb-3 capitalize ">
+                    {status === "on-progress" ? "In Progress" : status}
+                  </h3>
+                  <div className="space-y-3 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 pr-1">
+                    {tasks
+                      .filter((task) => task.status === status)
+                      .map((task, index) => (
+                        <Draggable
+                          draggableId={task._id!}
+                          index={index}
+                          key={task._id}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="bg-white p-3 rounded-lg shadow dark:bg-gray-500"
+                              onClick={() => setEditingTask(task)}
+                            >
+                              <p className="font-semibold">{task.title}</p>
+                              <div className="flex justify-between">
+                                <p className="text-xs ">
+                                  {task.assignedTo?.email || "Unassigned"}
+                                </p>
 
-            return (
-              <div
-                key={status}
-                className="flex-1 h-[400px] lg:mt-0 mt-5 w-full bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg p-4 border border-gray-200 dark:border-gray-700 flex flex-col lg:max-h-[70vh] lg:h-screen"
-              >
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
-                  {statusTitle}
-                </h3>
-
-                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                  {tasks
-                    .filter((task: Task) => task.status === status)
-                    .reverse()
-                    .map((task) => (
-                      <div
-                        key={task._id}
-                        className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow text-sm text-gray-700 dark:text-gray-100"
-                        onClick={() => setSelectedTask(task)}
-                      >
-                        <p className="font-semibold">{task.title}</p>
-                        <p className="text-xs mt-1 text-gray-600">
-                          Assigned To: {task.assignedTo?.email}
-                        </p>
-                      </div>
-                    ))}
-                  {tasks.filter((task) => task.status === status).length ===
-                    0 && <p className="text-gray-500 text-sm">No tasks</p>}
+                                {project?.createdBy._id ===
+                                  session?.user?._id && (
+                                  <button
+                                    className="text-xs bg-black px-2 py-1 text-white rounded cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation(); 
+                                      handleDeleteTask(task._id!);
+                                    }}
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                    {provided.placeholder}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              )}
+            </Droppable>
+          ))}
         </div>
-      </div>
+      </DragDropContext>
 
+      {/* Modals */}
       <CreateTaskModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
@@ -211,12 +263,24 @@ export default function ProjectBoardPage() {
         setTaskData={setTaskData}
         onSubmit={handleCreateTask}
         teamMates={teamMates}
+        mode={"create"}
       />
-
-      {selectedTask && (
-        <TaskDetailModal
-          onClose={() => setSelectedTask(null)}
-          task={selectedTask}
+      {editingTask && (
+        <CreateTaskModal
+          isOpen={true}
+          onClose={() => setEditingTask(null)}
+          taskData={{
+            title: editingTask.title,
+            description: editingTask.description,
+            assignedTo: editingTask.assignedTo
+              ? editingTask.assignedTo._id
+              : "",
+            priority: editingTask.priority,
+          }}
+          setTaskData={setEditingTask}
+          onSubmit={handleCreateTask}
+          teamMates={teamMates}
+          mode={project?.createdBy._id === session?.user?._id ? "edit" : "view"}
         />
       )}
     </div>

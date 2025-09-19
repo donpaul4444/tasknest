@@ -112,16 +112,17 @@ export default function ProjectListPage() {
                     Created by: {project?.createdBy?.email || "Unknown"}
                   </p>
                 </div>
-
-                <button
-                  className="text-white bg-black rounded-lg px-2 dark:text-black dark:bg-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDeleteTargetId(project._id);
-                  }}
-                >
-                  Delete
-                </button>
+              
+                  <button
+                    className="text-white bg-black rounded-lg px-2 dark:text-black dark:bg-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteTargetId(project._id);
+                    }}
+                  >
+                    Delete
+                  </button>
+          
               </div>
             </div>
           ))}

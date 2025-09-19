@@ -9,15 +9,18 @@ try {
 
     const body =await req.json()
     const {title,description,assignedTo,priority,projectId} =body
-    const user= await User.findOne({email:assignedTo})
+    console.log("assignedto",assignedTo);
+    
 
     const task= await Task.create({
         title,
         description,
-        assignedTo:user._id,
+        assignedTo:assignedTo,
         priority:priority ,
-        projectId
+        projectId,
+        status:"todo"
     })
+   await task.populate("assignedTo", "email");
 
     return NextResponse.json({success:true,task},{status:201})
 } catch (error:any) {
@@ -34,3 +37,5 @@ export async function GET(req:NextRequest){
            return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }
+
+

@@ -25,9 +25,12 @@ const CreateProjectModal = ({
 
   const handleCreateProject = async () => {
     if (projectName.trim() === "") {
-      setError("Project name cannot be empty");
+      setError("Project name cannot be empty")
       return;
-    }
+    }else if (projectName.trim().length > 20) {
+  setError("Project name cannot exceed 20 characters");
+  return;
+}
 
     try {
       const res = await axios.post("/api/project", {
