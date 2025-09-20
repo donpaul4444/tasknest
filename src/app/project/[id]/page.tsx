@@ -45,11 +45,8 @@ export default function ProjectBoardPage() {
   const [teamMates, setTeamMates] = useState<{ email: string; _id: string }[]>(
     []
   );
-  const { openDropdownId, setOpenDropdownId } = useUIStore();
-
-  const toggleDropdown = (id: string) => {
-    setOpenDropdownId(openDropdownId === id ? null : id);
-  };
+  const [localDropdown, setLocalDropdown] = useState(false);
+  const [isTeamMembersOpen, setIsTeamMembersOpen] = useState(false);
 
   useEffect(() => {
     if (!projectId) return;
@@ -86,7 +83,7 @@ export default function ProjectBoardPage() {
       });
       if (res.data.success) {
         toast.success("Task Created Successfully");
-        setTasks((prev) => [...prev, res.data.task]); 
+        setTasks((prev) => [...prev, res.data.task]);
       }
     } catch (error) {
       console.log(error);
@@ -165,28 +162,40 @@ export default function ProjectBoardPage() {
                 <Plus size={18} />
                 <span className="hidden sm:inline"> Create</span>
               </button>
+
               <div className="relative">
                 <button
+                  onClick={() => setLocalDropdown((prev) => !prev)}
                   className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500"
-                  onClick={() => toggleDropdown("addTeammate")}
                 >
                   <UserPlus size={18} />
                   <span className="hidden sm:inline"> Add Teammate</span>
                 </button>
-                {openDropdownId === "addTeammate" && <AddTeamMate />}
+
+                {localDropdown && (
+                  <div className="absolute right-0 mt-2 w-72 bg-red-500 rounded-lg shadow-lg z-50">
+                    <AddTeamMate />
+                  </div>
+                )}
               </div>
             </>
           )}
           <div className="relative">
             <button
+              onClick={() => setIsTeamMembersOpen((prev) => !prev)}
               className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-              onClick={() => toggleDropdown("teamMembers")}
             >
               <Users size={18} />
-              <span className="hidden sm:inline"> Team Members</span>
+              <span className="hidden sm:inline">Team Members</span>
             </button>
-            {openDropdownId === "teamMembers" && (
-              <TeamMembers teamMates={teamMates} setTeamMates={setTeamMates} />
+
+            {isTeamMembersOpen && (
+              <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-700 rounded-lg shadow-lg z-50">
+                <TeamMembers
+                  teamMates={teamMates}
+                  setTeamMates={setTeamMates}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -225,16 +234,21 @@ export default function ProjectBoardPage() {
                             >
                               <p className="font-semibold">{task.title}</p>
                               <div className="flex justify-between">
-                                <p className="text-xs ">
-                                  {task.assignedTo?.email || "Unassigned"}
-                                </p>
+                                <div className="text-xs text-gray-700 dark:text-gray-200">
+                                  <span className="font-semibold">
+                                    Assigned To:
+                                  </span>{" "}
+                                  <span>
+                                    {task.assignedTo?.email || "Unassigned"}
+                                  </span>
+                                </div>
 
                                 {project?.createdBy._id ===
                                   session?.user?._id && (
                                   <button
                                     className="text-xs bg-black px-2 py-1 text-white rounded cursor-pointer"
                                     onClick={(e) => {
-                                      e.stopPropagation(); 
+                                      e.stopPropagation();
                                       handleDeleteTask(task._id!);
                                     }}
                                   >

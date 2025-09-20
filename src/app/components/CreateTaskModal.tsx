@@ -57,8 +57,8 @@ const CreateTaskModal = ({
     if (!taskData.title.trim()) {
       formErrors.title = "Title cannot be empty";
       hasError = true;
-    } else if (taskData.title.length > 20) {
-      formErrors.title = "Title cannot exceed 20 characters";
+    } else if (taskData.title.length > 30) {
+      formErrors.title = "Title cannot exceed 30 characters";
       hasError = true;
     }
 
@@ -82,15 +82,15 @@ const CreateTaskModal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center border">
-      <div className="bg-white w-full max-w-sm  sm:max-w-md rounded-lg p-6 space-y-4">
-        <h2 className="text-lg font-bold">
+      <div className="bg-white w-full max-w-sm  sm:max-w-md rounded-lg p-6 space-y-4 dark:bg-gray-600">
+        <h2 className="text-lg font-bold ">
           {mode === "create" ? "Create Task" : "Task"}
         </h2>
         <div>
-          <label className="block text-sm font-medium">Title</label>
+          <label className="block text-sm font-medium ">Title</label>
           <input
             name="title"
-            className={`w-full border rounded-lg p-2 mt-1 ${
+            className={`w-full border rounded-lg p-2 mt-1  ${
               errors.title ? "border-red-500" : ""
             }`}
             value={taskData.title}
@@ -106,10 +106,10 @@ const CreateTaskModal = ({
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium">Description</label>
+          <label className="block text-sm font-medium ">Description</label>
           <textarea
             name="description"
-            className={`w-full border rounded-lg p-2 mt-1 ${
+            className={`w-full border rounded-lg p-2 mt-1  ${
               errors.description ? "border-red-500" : ""
             }`}
             rows={3}
@@ -125,14 +125,14 @@ const CreateTaskModal = ({
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium">Assign To</label>
+          <label className="block text-sm font-medium ">Assign To</label>
           <div className="relative">
             {/* Fake input field */}
             <button
               type="button"
               disabled={mode !== "create"}
               onClick={() => setShowDropdown(!showDropdown)}
-              className={`w-full border rounded-lg p-2 mt-1 text-left flex justify-between items-center ${
+              className={`w-full border rounded-lg p-2 mt-1 text-left flex justify-between items-center  ${
                 errors.assignedTo ? "border-red-500" : ""
               }`}
             >
@@ -184,7 +184,7 @@ const CreateTaskModal = ({
           <label className="block text-sm font-medium">Priority</label>
           <select
             name="priority"
-            className="w-full border rounded-lg p-2 mt-1"
+            className="w-full border rounded-lg p-2 mt-1 dark:text-black bg-gray-300"
             value={taskData.priority}
             disabled={mode !== "create"}
             onChange={handleChange}

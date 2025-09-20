@@ -15,12 +15,6 @@ const Sidebar = ({session,setShowModal}:SidebarProps) => {
                   <p className="text-base font-semibold">
                     Welcome, {session?.user?.name}
                   </p>
-                  <Link
-                    href="/project"
-                    className="block px-4 py-2 rounded-md text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    Home
-                  </Link>
                   <button
                     onClick={() => {
                       setShowModal(true);

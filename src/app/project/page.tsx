@@ -14,6 +14,7 @@ type Project = {
   _id: string;
   name: string;
   createdBy?: {
+    _id?: string;
     email?: string;
   };
 };
@@ -112,7 +113,7 @@ export default function ProjectListPage() {
                     Created by: {project?.createdBy?.email || "Unknown"}
                   </p>
                 </div>
-              
+               {project?.createdBy && project.createdBy._id === session?.user?._id && (
                   <button
                     className="text-white bg-black rounded-lg px-2 dark:text-black dark:bg-white"
                     onClick={(e) => {
@@ -122,7 +123,7 @@ export default function ProjectListPage() {
                   >
                     Delete
                   </button>
-          
+               )}
               </div>
             </div>
           ))}

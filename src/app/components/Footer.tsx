@@ -10,8 +10,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col md:flex-row items-center gap-1">
-          <a href="#" className="hover:text-black transition px-2 dark:text-white">About</a>
-          <a href="#" className="hover:text-black transition px-2 dark:text-white">Admin</a>
+          <p className="text-gray-500 px-2 dark:text-white">About</p>
           <p className="text-gray-500 px-2 dark:text-white">donpaul4444@gmail.com</p>
         </div>
       </div>
