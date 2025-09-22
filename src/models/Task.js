@@ -20,6 +20,7 @@ const taskSchema= new Schema(
         status:{
             type:String,
             enum:["todo","in-progress","review","done"],
+            default:"todo"
         },
         projectId:{
             type:Schema.Types.ObjectId,

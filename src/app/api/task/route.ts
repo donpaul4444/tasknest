@@ -8,7 +8,7 @@ try {
     await connectToDB()
 
     const body =await req.json()
-    const {title,description,assignedTo,priority,projectId} =body
+    const {title,description,assignedTo,priority,projectId,status} =body
     console.log("assignedto",assignedTo);
     
 
@@ -18,7 +18,7 @@ try {
         assignedTo:assignedTo,
         priority:priority ,
         projectId,
-        status:"todo"
+        status
     })
    await task.populate("assignedTo", "email");
 

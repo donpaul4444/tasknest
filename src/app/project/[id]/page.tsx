@@ -24,6 +24,14 @@ type Task = {
   priority: string;
   status: string;
 };
+interface TaskData {
+  title: string;
+  description: string;
+  assignedTo: string;
+  status: string;
+  priority:string;
+}
+
 
 export default function ProjectBoardPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,11 +42,12 @@ export default function ProjectBoardPage() {
     createdBy: { _id: string };
   } | null>(null);
   const { data: session } = useSession();
-  const [taskData, setTaskData] = useState({
+  const [taskData, setTaskData] = useState<TaskData>({
     title: "",
     description: "",
     assignedTo: "",
     priority: "low",
+    status:"todo"
   });
   const { projectId } = useProjectStore();
   const [teamMates, setTeamMates] = useState<{ email: string; _id: string }[]>(
@@ -79,6 +88,7 @@ export default function ProjectBoardPage() {
         description: "",
         assignedTo: "",
         priority: "",
+        status:"todo"
       });
       if (res.data.success) {
         toast.success("Task Created Successfully");

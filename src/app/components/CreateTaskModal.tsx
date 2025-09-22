@@ -17,6 +17,12 @@ interface CreateTaskModalProps {
   teamMates: { _id: string; email: string }[];
   mode?: "create" | "edit" | "view";
 }
+interface TaskData {
+  title: string;
+  description: string;
+  assignedTo?: string;
+  status?: string;
+}
 
 const CreateTaskModal = ({
   isOpen,
@@ -40,16 +46,19 @@ const CreateTaskModal = ({
         description: "",
         assignedTo: "",
         priority: "medium",
+        status:"todo"
       });
       setErrors({ title: "", description: "", assignedTo: "" });
     }
   }, [isOpen, mode]);
   if (!isOpen) return null;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setTaskData((prev: any) => ({ ...prev, [name]: value }));
-  };
+const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+  setTaskData((prev: TaskData) => ({ ...prev, [name]: value }));
+};
 
   const handleCreate = () => {
     const formErrors = { title: "", description: "", assignedTo: "" };
@@ -149,7 +158,7 @@ const CreateTaskModal = ({
                     key={mate._id}
                     className="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                     onClick={() => {
-                      setTaskData((prev) => ({
+                      setTaskData((prev:TaskData) => ({
                         ...prev,
                         assignedTo: mate._id,
                       }));
@@ -162,7 +171,7 @@ const CreateTaskModal = ({
                       name="assignedTo"
                       checked={taskData.assignedTo === mate._id}
                       onChange={() =>
-                        setTaskData((prev) => ({
+                        setTaskData((prev:TaskData) => ({
                           ...prev,
                           assignedTo: mate._id,
                         }))
