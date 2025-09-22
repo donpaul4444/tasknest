@@ -5,7 +5,6 @@ import AddTeamMate from "@/app/components/AddTeamMate";
 import CreateTaskModal from "@/app/components/CreateTaskModal";
 import TeamMembers from "@/app/components/TeamMembers";
 import { useProjectStore } from "@/store/projectStore";
-import { useUIStore } from "@/store/uiStore";
 import axios from "axios";
 import { Plus, UserPlus, Users, X } from "lucide-react";
 import { useSession } from "next-auth/react";
