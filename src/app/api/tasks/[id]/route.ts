@@ -29,8 +29,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } } 
 ) {
+  const { params } = context;
   try {
     await connectToDB();
 

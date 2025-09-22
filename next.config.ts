@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
     ],
   },
   eslint: {
-    // This will allow production builds even if ESLint errors exist
     ignoreDuringBuilds: true,
   },
 };
