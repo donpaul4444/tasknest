@@ -4,14 +4,15 @@ import Task from "@/models/Task";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context:any 
 ) {
+  const id = context.params.id;
   try {
     await connectToDB();
     const { status } = await req.json();
 
     const updatedTask = await Task.findByIdAndUpdate(
-      params.id,
+      id,
       { status },
       { new: true }
     ).populate("assignedTo", "email");
