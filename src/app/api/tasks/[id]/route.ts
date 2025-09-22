@@ -1,9 +1,6 @@
 import { connectToDB } from "@/lib/mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import Task from "@/models/Task";
-interface Params {
-  id: string;
-}
 
 export async function PATCH(
   req: NextRequest,
@@ -30,22 +27,20 @@ export async function PATCH(
 }
 
 
-export async function DELETE(
-  req: NextRequest,
-  context: { params: Params } 
-) {
-  const { params } = context;
+export async function DELETE(req: NextRequest, event: { params: { id: string } }) {
+  const id = event.params.id;
+
   try {
     await connectToDB();
 
-    const deletedTask = await Task.findByIdAndDelete(params.id);
+    const deletedTask = await Task.findByIdAndDelete(id);
 
     if (!deletedTask) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, message: "Task deleted" });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }
