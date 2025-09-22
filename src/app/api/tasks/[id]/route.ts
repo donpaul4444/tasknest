@@ -1,6 +1,9 @@
 import { connectToDB } from "@/lib/mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import Task from "@/models/Task";
+interface Params {
+  id: string;
+}
 
 export async function PATCH(
   req: NextRequest,
@@ -29,7 +32,7 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } } 
+  context: { params: Params } 
 ) {
   const { params } = context;
   try {
